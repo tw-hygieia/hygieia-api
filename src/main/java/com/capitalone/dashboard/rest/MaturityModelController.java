@@ -27,7 +27,7 @@ public class MaturityModelController {
 
 
     @RequestMapping(value = "/maturityModel/profiles", method = GET, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<String>> getMaturiyModelProfiles() {
+    public ResponseEntity<List<MaturityModel>> getMaturiyModelProfiles() {
         return ResponseEntity.ok().body(maturityModelService.getProfiles());
     }
 

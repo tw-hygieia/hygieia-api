@@ -7,5 +7,5 @@ import java.util.List;
 public interface MaturityModelService {
 	
 	MaturityModel getMaturityModel(String profile);
-	List<String> getProfiles();
+	List<MaturityModel> getProfiles();
 }

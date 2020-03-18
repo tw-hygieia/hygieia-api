@@ -17,6 +17,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.Mockito.verify;
@@ -247,9 +249,8 @@ public class MaturityModelControllerTest {
         MaturityModel maturityModel = new MaturityModel();
         maturityModel.setProfile("test");
         maturityModel.setRules(JSON_RULES);
-        List<String> profiles = new ArrayList<>();
-        profiles.add("test");
-        when(maturityModelService.getProfiles()).thenReturn(profiles);
+
+        when(maturityModelService.getProfiles()).thenReturn(Collections.singletonList(maturityModel));
 
         mockMvc.perform(get("/maturityModel/profiles").contentType(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk());
