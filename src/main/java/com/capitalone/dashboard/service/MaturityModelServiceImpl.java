@@ -5,6 +5,7 @@ import com.capitalone.dashboard.repository.MaturityModelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -24,9 +25,9 @@ public class MaturityModelServiceImpl implements MaturityModelService {
     }
 
     @Override
-    public List<String> getProfiles() {
-        return maturityModelRepository.getAllProfiles();
-
+    public List<MaturityModel> getProfiles() {
+        List<MaturityModel> maturityModelArrayList = new ArrayList<>();
+        maturityModelRepository.findAll().forEach(maturityModelArrayList::add);
+        return maturityModelArrayList;
     }
-
 }
