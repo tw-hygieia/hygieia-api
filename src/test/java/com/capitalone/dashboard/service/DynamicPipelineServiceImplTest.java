@@ -181,8 +181,8 @@ public class DynamicPipelineServiceImplTest {
 
 		List<PipelineResponseCommit> prcs = response.getStageCommits(PipelineStage.COMMIT);
 		Map<String, PipelineResponseCommit> prcMap = prcRevisionMap(prcs);
-		assertEquals(1, prcs.size());
-		assertNotNull(prcMap.get("E"));
+		assertEquals(9, prcs.size());
+		assertNotNull(prcMap.get("H"));
 
 		prcs = response.getStageCommits(PipelineStage.BUILD);
 		prcMap = prcRevisionMap(prcs);
@@ -245,8 +245,16 @@ public class DynamicPipelineServiceImplTest {
 		pipeline = service.buildPipeline(pipeline, 0L, 100L);
 
 		Map<String, PipelineCommit> pcs = pipeline.getCommitsByEnvironmentName(PipelineStage.COMMIT.getName());
-		assertEquals(1, pcs.size());
+		assertEquals(9, pcs.size());
+		assertNotNull(pcs.get("A"));
+		assertNotNull(pcs.get("B"));
+		assertNotNull(pcs.get("C1"));
+		assertNotNull(pcs.get("C2"));
+		assertNotNull(pcs.get("D"));
 		assertNotNull(pcs.get("E"));
+		assertNotNull(pcs.get("F"));
+		assertNotNull(pcs.get("G"));
+		assertNotNull(pcs.get("H"));
 
 		pcs = pipeline.getCommitsByEnvironmentName(PipelineStage.BUILD.getName());
 		assertEquals(8, pcs.size());
@@ -291,18 +299,59 @@ public class DynamicPipelineServiceImplTest {
 
 		List<PipelineCommit> pipelineCommits = getPipelineCommits(pipeline, PipelineStage.COMMIT.getName());
 
-		assertEquals(1, pipelineCommits.size());
+		assertEquals(9, pipelineCommits.size());
 
 		PipelineCommit pc = pipelineCommits.get(0);
-		assertEquals("E", pc.getScmRevisionNumber());
-		assertEquals(100000005, pc.getTimestamp());
+		assertEquals("A", pc.getScmRevisionNumber());
+		assertEquals(100000000, pc.getTimestamp());
 		assertEquals(SCM_URL1, pc.getScmUrl());
 		assertEquals(SCM_BRANCH1, pc.getScmBranch());
-		assertEquals("Commit E", pc.getScmCommitLog());
+		assertEquals("Commit A", pc.getScmCommitLog());
 		assertEquals(SCM_AUTHOR1, pc.getScmAuthor());
-		assertEquals(100000005, pc.getScmCommitTimestamp());
+		assertEquals(100000000, pc.getScmCommitTimestamp());
 		assertEquals(1, pc.getNumberOfChanges());
 
+		pc = pipelineCommits.get(1);
+		assertEquals("B", pc.getScmRevisionNumber());
+		assertEquals(100000001, pc.getTimestamp());
+		assertEquals(Arrays.asList("A"), pc.getScmParentRevisionNumbers());
+
+		pc = pipelineCommits.get(2);
+		assertEquals("C1", pc.getScmRevisionNumber());
+		assertEquals(100000002, pc.getTimestamp());
+		assertEquals(Arrays.asList("B"), pc.getScmParentRevisionNumbers());
+
+		pc = pipelineCommits.get(3);
+		assertEquals("C2", pc.getScmRevisionNumber());
+		assertEquals(100000003, pc.getTimestamp());
+		assertEquals(Arrays.asList("B"), pc.getScmParentRevisionNumbers());
+
+		pc = pipelineCommits.get(4);
+		assertEquals("D", pc.getScmRevisionNumber());
+		assertEquals(100000004, pc.getTimestamp());
+		assertEquals(Arrays.asList("C2"), pc.getScmParentRevisionNumbers());
+
+		pc = pipelineCommits.get(5);
+		assertEquals("E", pc.getScmRevisionNumber());
+		assertEquals(100000005, pc.getTimestamp());
+		assertNotNull(pc.getScmParentRevisionNumbers());
+		assertEquals("D", pc.getScmParentRevisionNumbers().get(0));
+		assertEquals("C1", pc.getScmParentRevisionNumbers().get(1));
+
+		pc = pipelineCommits.get(6);
+		assertEquals("F", pc.getScmRevisionNumber());
+		assertEquals(100000006, pc.getTimestamp());
+		assertEquals(Arrays.asList("E"), pc.getScmParentRevisionNumbers());
+
+		pc = pipelineCommits.get(7);
+		assertEquals("G", pc.getScmRevisionNumber());
+		assertEquals(100000007, pc.getTimestamp());
+		assertEquals(Arrays.asList("F"), pc.getScmParentRevisionNumbers());
+
+		pc = pipelineCommits.get(8);
+		assertEquals("H", pc.getScmRevisionNumber());
+		assertEquals(110000000, pc.getTimestamp());
+		assertEquals(Arrays.asList("G"), pc.getScmParentRevisionNumbers());
 	}
 
 	// Basic test for processing the build portion of the pipeline

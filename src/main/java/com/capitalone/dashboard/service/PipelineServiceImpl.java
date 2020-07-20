@@ -243,10 +243,7 @@ public class PipelineServiceImpl implements PipelineService {
         for (Map.Entry<String, PipelineCommit> entry : startingStage.entrySet()) {
             if (!commitsInLaterStages.containsKey(entry.getKey())) {
                 PipelineResponseCommit commit = applyStageTimestamps(new PipelineResponseCommit((PipelineCommit) entry.getValue()), dashboard, pipeline, pipelineStageList);
-                List<String> parentRevisionNumbers = commit.getScmParentRevisionNumbers();
-                if (parentRevisionNumbers != null && !parentRevisionNumbers.isEmpty() && parentRevisionNumbers.size() > 1) {
-                    notPropagatedCommits.add(commit);
-                }
+                notPropagatedCommits.add(commit);
             }
         }
 
