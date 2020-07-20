@@ -260,10 +260,7 @@ public class DynamicPipelineServiceImpl implements PipelineService {
     		boolean commitNotSeen = seenRevisionNumbers.add(commit.getScmRevisionNumber());
     		
     		if (commitNotSeen) {
-				List<String> parentRevisionNumbers = commit.getScmParentRevisionNumbers();
-				if (parentRevisionNumbers != null && !parentRevisionNumbers.isEmpty() && parentRevisionNumbers.size() > 1) {
-					pipeline.addCommit(PipelineStage.COMMIT.getName(), new PipelineCommit(commit, commit.getScmCommitTimestamp()));
-				}
+    			pipeline.addCommit(PipelineStage.COMMIT.getName(), new PipelineCommit(commit, commit.getScmCommitTimestamp()));
     		}
 		}
     }
