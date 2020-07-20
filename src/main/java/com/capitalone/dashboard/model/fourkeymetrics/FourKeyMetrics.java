@@ -8,12 +8,15 @@ import java.util.List;
 public class FourKeyMetrics {
 
     private Deployments deployments;
-    private Commits commits;
+    private List<DeployedCommit> deployedCommits;
 
     public FourKeyMetrics(Deployments deployments, Commits commits) {
+        this(deployments, getDeployedCommits(deployments, commits));
+    }
 
+    public FourKeyMetrics(Deployments deployments, List<DeployedCommit> deployedCommits) {
         this.deployments = deployments;
-        this.commits = commits;
+        this.deployedCommits = deployedCommits;
     }
 
     public long deploymentFrequency() {
@@ -21,27 +24,27 @@ public class FourKeyMetrics {
     }
 
     public LeadTimeMetrics leadTime() {
+        return new LeadTimeMetrics(deployedCommits);
+    }
+
+    private static List<DeployedCommit> getDeployedCommits(Deployments deployments, Commits commits) {
+        List<DeployedCommit> deployedCommits = new ArrayList<>();
         Deployment latestDeployment = deployments.latestSuccessful();
         if (latestDeployment == null) {
-            return new LeadTimeMetrics(Collections.emptyList());
-        }
-        List<Commit> commitsWithDeployments = this.commits.commitsUntil(latestDeployment);
-        Date deploymentTime = latestDeployment.timeDeployed();
-        List<DeployedCommit> deployedCommits = new ArrayList<>();
-        for (Commit commit :
-                commitsWithDeployments) {
-            Deployment deployment = deployments.latestSuccessfulForCommit(commit);
-            if (deployment != null) {
-                deploymentTime = deployment.timeDeployed();
-            } else {
-//                Skip non-merge commits
-//                if (!commit.isMerge()) {
-//                    continue;
-//                }
+            deployedCommits = Collections.emptyList();
+        } else {
+            List<Commit> commitsWithDeployments = commits.commitsUntil(latestDeployment);
+            Date deploymentTime = latestDeployment.timeDeployed();
+            for (Commit commit :
+                    commitsWithDeployments) {
+                Deployment deployment = deployments.latestSuccessfulForCommit(commit);
+                if (deployment != null) {
+                    deploymentTime = deployment.timeDeployed();
+                }
+                deployedCommits.add(new DeployedCommit(commit, deploymentTime));
             }
-            deployedCommits.add(new DeployedCommit(commit, deploymentTime));
         }
-        return new LeadTimeMetrics(deployedCommits);
+        return deployedCommits;
     }
 
     public double changeFailureRate() {

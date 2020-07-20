@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class LeadTimeMetrics {
+    public List<DeployedCommit> getDeployedCommits() {
+        return deployedCommits;
+    }
+
     private List<DeployedCommit> deployedCommits;
 
     public LeadTimeMetrics(List<DeployedCommit> deployedCommits) {
