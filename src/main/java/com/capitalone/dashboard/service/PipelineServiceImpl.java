@@ -18,15 +18,7 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service("pipeline")
@@ -55,6 +47,22 @@ public class PipelineServiceImpl implements PipelineService {
             pipelineResponses.add(buildPipelineResponse(pipeline, searchRequest.getBeginDate(), searchRequest.getEndDate()));
         }
         return pipelineResponses;
+    }
+
+    @Override
+    public Collection<PipelineCommit> fetchProdPipelineCommits(ObjectId collectorItemId) {
+        Pipeline pipeline = pipelineRepository.findByCollectorItemId(collectorItemId);
+        if (pipeline == null) {
+            return Collections.emptyList();
+        }
+        CollectorItem dashboardCollectorItem = collectorItemRepository.findOne(pipeline.getCollectorItemId());
+        Dashboard dashboard = dashboardRepository
+                .findOne(new ObjectId((String)dashboardCollectorItem.getOptions().get("dashboardId")));
+        Map<PipelineStage, String> stageToEnvironmentNameMap = PipelineUtils.getStageToEnvironmentNameMap(dashboard);
+        PipelineStage prodStage = PipelineStage.valueOf(PipelineUtils.getProdStage(dashboard));
+        String prodEnvironment = stageToEnvironmentNameMap.get(prodStage);
+        Map<String, PipelineCommit> commitsByEnvironmentName = pipeline.getCommitsByEnvironmentName(prodEnvironment);
+        return commitsByEnvironmentName.values();
     }
 
     protected Pipeline getOrCreatePipeline(ObjectId collectorItemId) {

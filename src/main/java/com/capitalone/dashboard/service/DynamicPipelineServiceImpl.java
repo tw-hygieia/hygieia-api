@@ -138,6 +138,22 @@ public class DynamicPipelineServiceImpl implements PipelineService {
         }
         return pipeline;
     }
+
+	@Override
+	public Collection<PipelineCommit> fetchProdPipelineCommits(ObjectId collectorItemId) {
+		Pipeline pipeline = pipelineRepository.findByCollectorItemId(collectorItemId);
+		if (pipeline == null) {
+			return Collections.emptyList();
+		}
+		CollectorItem dashboardCollectorItem = collectorItemRepository.findOne(pipeline.getCollectorItemId());
+		Dashboard dashboard = dashboardRepository
+				.findOne(new ObjectId((String)dashboardCollectorItem.getOptions().get("dashboardId")));
+		Map<PipelineStage, String> stageToEnvironmentNameMap = PipelineUtils.getStageToEnvironmentNameMap(dashboard);
+		PipelineStage prodStage = PipelineStage.valueOf(PipelineUtils.getProdStage(dashboard));
+		String prodEnvironment = stageToEnvironmentNameMap.get(prodStage);
+		Map<String, PipelineCommit> commitsByEnvironmentName = pipeline.getCommitsByEnvironmentName(prodEnvironment);
+		return commitsByEnvironmentName.values();
+	}
     
     // Creates the response that is returned to the client
     private PipelineResponse buildPipelineResponse(Pipeline pipeline, Long lowerBound, Long upperBound){
